@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penggunaan Obat/BMHP</title>
+    <style>
+        /* ================= GAYA TAMPILAN ================= */
+        :root {
+            --primary-color: #970747; /* Merah Muda Tua */
+            --white-color: #FFFFFF;
+            --black-color: #000000;
+        }
+
+        body { 
+            font-family: 'Times New Roman', Times, serif; 
+            background: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: var(--black-color);
+        }
+
+        .mobile-container { 
+            width: 100%; 
+            max-width: 420px; 
+            background: var(--white-color); 
+            height: 100vh; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        
+        /* HEADER STATIS (BESAR DI SEMUA HALAMAN) */
+        .header { 
+            background: var(--primary-color); 
+            color: var(--white-color); 
+            padding: 45px 20px; 
+            text-align: center; 
+            border-radius: 0 0 40px 40px; 
+            margin-bottom: 0; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            flex-shrink: 0; 
+            z-index: 10; 
+        }
+
+        .header h2 { 
+            margin: 0; 
+            font-size: 24px; 
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            line-height: 1.4;
+        } 
+        
+        .content { 
+            padding: 10px 25px 20px 25px; 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+        
+        /* Layout Logic */
+        .screen { 
+            display: none; 
+            flex-direction: column; 
+            height: 100%; 
+            animation: fadeIn 0.4s; 
+        }
+        
+        /* Tampilan 1 & 1-Sub: Tengah */
+        #screen-1.active, #screen-1-sub.active { 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        /* Tampilan Lain: Flex Biasa */
+        .screen.active { 
+            display: flex; 
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Inputs */
+        label { display: block; margin: 12px 0 5px; font-weight: bold; font-size: 16px; color: var(--black-color); }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            font-family: 'Times New Roman', Times, serif;
+            background: #fdfdfd;
+        }
+        input:focus { border-color: var(--primary-color); outline: none; background: #fff; }
+        
+        /* Buttons */
+        .btn { 
+            width: 100%; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            font-size: 16px; 
+            font-family: 'Times New Roman', Times, serif;
+            letter-spacing: 1px;
+            transition: 0.2s; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-primary { background: var(--primary-color); color: var(--white-color); }
+        .btn-primary:active { opacity: 0.9; transform: scale(0.98); }
+        
+        .btn-danger { background: var(--black-color); color: var(--white-color); }
+        
+        .btn-outline { 
+            background: var(--white-color); 
+            border: 2px solid var(--primary-color); 
+            color: var(--primary-color); 
+        }
+
+        /* Wrapper tombol bawah */
+        .bottom-buttons {
+            margin-top: auto; 
+            padding-top: 20px;
+            padding-bottom: 10px;
+        }
+        
+        /* Tombol Pilihan Besar (Tampilan 1) */
+        .btn-big-option { 
+            height: 90px; 
+            font-size: 20px; 
+            margin-bottom: 25px; 
+            background: var(--white-color); 
+            border: 3px solid var(--primary-color); 
+            color: var(--primary-color); 
+            width: 100%; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        .btn-big-option:hover { background: var(--primary-color); color: var(--white-color); }
+
+        /* Tombol Sub Pilihan (Tampilan 1-Sub) - Sedikit lebih kecil dari menu utama */
+        .btn-sub-option { 
+            height: 60px; /* Sedikit diperkecil agar muat banyak */
+            font-size: 16px; 
+            margin-bottom: 12px; 
+            background: var(--white-color); 
+            border: 2px solid var(--primary-color); 
+            color: var(--primary-color); 
+            width: 100%; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .btn-sub-option:hover { background: var(--primary-color); color: var(--white-color); }
+
+        /* FAB (Tombol +) */
+        .fab {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: var(--primary-color); color: var(--white-color);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 35px; box-shadow: 0 4px 15px rgba(151, 7, 71, 0.4);
+            border: none; z-index: 100; cursor: pointer; 
+        }
+
+        /* Cards List Obat */
+        .card { 
+            background: var(--white-color); 
+            border-left: 5px solid var(--primary-color); 
+            border-top: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        /* Loading Overlay */
+        .loading { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 999; display: none; justify-content: center; align-items: center; flex-direction: column;}
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="header">
+        <h2>PENGGUNAAN OBAT/BMHP</h2>
+    </div>
+
+    <div class="content">
+        
+        <div id="screen-1" class="screen active">
+            <button class="btn btn-big-option" onclick="selectCategory('Trolley Emergency')">TROLLEY EMERGENCY</button>
+            <button class="btn btn-big-option" onclick="selectCategory('Box Emergency')">BOX EMERGENCY</button>
+        </div>
+
+        <div id="screen-1-sub" class="screen">
+            <h3 style="text-align:center; color:var(--primary-color); margin-bottom:20px; font-size:18px;" id="sub-title">PILIH LOKASI</h3>
+            <div id="sub-options-container" style="width: 100%; overflow-y: auto; max-height: 60vh;">
+                </div>
+            <div style="margin-top: 10px; width: 100%;">
+                <button class="btn btn-outline" onclick="goToScreen(1)">KEMBALI</button>
+            </div>
+        </div>
+
+        <div id="screen-2" class="screen">
+            <div style="margin-top: 10px;"> 
+                <label style="margin-top: 10px;">Nama Pasien <span style="color:var(--primary-color)">*</span></label>
+                <input type="text" id="input-pasien" placeholder="Masukkan nama pasien">
+                
+                <label>No. RM</label>
+                <input type="number" id="input-rm" placeholder="Contoh: 123456">
+                
+                <label>Nama Dokter/Perawat <span style="color:var(--primary-color)">*</span></label>
+                <input type="text" id="input-petugas" placeholder="Nama pengambil obat">
+            </div>
+
+            <div class="bottom-buttons">
+                <button class="btn btn-primary" onclick="validateAndNext()">LANJUT</button>
+                <button class="btn btn-outline" onclick="goToScreen('1-sub')">KEMBALI</button>
+            </div>
+        </div>
+
+        <div id="screen-3" class="screen">
+            <div style="margin-top: 10px;">
+                <label style="margin-top: 10px;">Nama Obat/BMHP</label>
+                <input type="text" id="input-obat" list="list-obat-db" placeholder="Ketik nama obat..." autocomplete="off">
+                <datalist id="list-obat-db">
+                    </datalist>
+                
+                <label>Jumlah</label>
+                <input type="number" id="input-jumlah" placeholder="Contoh: 1">
+            </div>
+
+            <div class="bottom-buttons">
+                <button class="btn btn-primary" onclick="addMedicine()">SIMPAN</button>
+                <button class="btn btn-outline" onclick="cancelAddObat()">BATAL</button>
+            </div>
+        </div>
+
+        <div id="screen-4" class="screen">
+            
+            <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:15px; border: 1px solid #e9ecef; margin-top: 15px;">
+                <div style="font-size:14px; color:var(--primary-color); font-weight:bold; text-transform:uppercase;" id="disp-sumber"></div>
+                <div style="font-size:18px; font-weight:bold; margin-top:5px; border-bottom: 1px solid #ddd; padding-bottom:5px;" id="disp-pasien"></div>
+                <div style="font-size:15px; margin-top:5px;">RM: <span id="disp-rm">-</span></div>
+                <div style="font-size:15px;">Petugas: <span id="disp-petugas"></span></div>
+            </div>
+
+            <label>Daftar obat/BMHP yang digunakan:</label>
+            <div id="list-obat-container" style="padding-bottom: 100px;">
+                </div>
+
+            <button class="fab" onclick="goToScreen(3)">+</button>
+            
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: var(--white-color); padding: 15px; border-top: 1px solid #eee;">
+                <button class="btn btn-danger" onclick="submitData()">SIMPAN DATA</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="loading" class="loading">
+    <div style="border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+    <p style="margin-top:15px; font-weight:bold; color:var(--primary-color);">Menyimpan data...</p>
+</div>
+<style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+
+<script>
+// ================= DATABASE OBAT =================
+const daftarObat = [
+    "ATROPINE SULFAT 0,25 MG/ML @ 1 ML INJ", "CALSII GLUCONAS 100 MG/ML @ 10 ML INJ", "D40% 25 ML",
+    "DEXAMETHASONE 5 MG/ML @ 1 ML INJ", "DIAZEPAM 5 MG/ML @ 2 ML INJ", "DIGOXIN 0,25 MG/ML @ 2 ML INJ",
+    "DIPHENHYDRAMINE 10 MG/ML @ 1 ML INJ", "DOBUTAMIN 50 MG/ML @ 5 ML INJ", "DOPAMIN 40 MG/ML @ 5 ML INJ",
+    "EPHEDRINE HCL 50 MG/ML @ 1 ML INJ", "EPINEPHRINE 1 MG/ML @ 1 ML INJ", "FUROSEMIDE 10 MG/ML @ 2 ML INJ",
+    "LIDOCAIN HCL 20 MG/ML @ 2 ML INJ", "MgSo4 40 % 25 ML", "MIDAZOLAM 1 MG/ML @ 5 ML INJ",
+    "NATRIUM PHENYTOIN 50 MG/ML @ 2 ML INJ", "NICARDIPINE 1 MG/ML @ 10 ML INJ", "NOR-EPINEPRIN 1 MG/ML @ 4 ML INJ",
+    "SIBITAL 100 MG/ML @ 2 ML INJ", "SPUIT 1 CC", "SPUIT 3 CC", "SPUIT 5 CC", "SPUIT 10 CC",
+    "SYRINGE PUMP 50 CC", "3 WAY", "ABBOCATH NO. 14", "ABBOCATH NO. 16", "ABBOCATH NO. 18",
+    "ABBOCATH NO. 20", "ABBOCATH NO. 22", "ABBOCATH NO. 24", "ABBOCATH NO. 26", "PERCUSOR",
+    "ETT 3", "ETT 3,5", "ETT 4", "ETT 4,5", "ETT 5", "ETT 5,5", "ETT 6", "ETT 6,5", "ETT 7", "ETT 7,5",
+    "GUEDEL 0", "GUEDEL 00", "GUEDEL 000", "SUCTION CATETER NO. 6", "SUCTION CATETER NO. 8",
+    "SUCTION CATETER NO. 10", "SUCTION CATETER NO. 12", "SUCTION CATETER NO. 14", "NRM ANAK", "NRM DEWASA",
+    "NASAL CANUL ANAK", "NASAL CANUL DEWASA", "AMBUBAG ANAK", "AMBUBAG DEWASA", "JAKSEN RISE ANAK",
+    "JAKSEN RISE DEWASA", "INFUS RL 500 ML", "INFUS NACL 0,9 % 500 ML", "INFUS D 10 % 500 ML",
+    "INFUS D 5 % 500 ML", "INFUS HES 130 500 ML", "AQUADEST 25 ML", "NACL 0,9 % 100 ML"
+];
+
+// ================= DATA PILIHAN SUB-MENU DIPERBARUI =================
+const locationData = {
+    'Trolley Emergency': [
+        "Trolley Cempaka", 
+        "Trolley Dahlia", 
+        "Trolley HD", 
+        "Trolley ICU",
+        "Trolley IGD", 
+        "Trolley Kenanga",
+        "Trolley Teratai",
+        "Trolley VK"
+    ],
+    'Box Emergency': [
+        "Box Ambulance",
+        "Box Isolasi",
+        "Box Mawar", 
+        "Box OK Central", 
+        "Box OK Cito", 
+        "Box Perinatologi",
+        "Box Ponek",
+        "Box Radiologi",
+        "Box VIP"
+    ]
+};
+
+window.onload = function() {
+    const dataList = document.getElementById('list-obat-db');
+    daftarObat.forEach(obat => {
+        let option = document.createElement('option');
+        option.value = obat;
+        dataList.appendChild(option);
+    });
+};
+
+// ================= BACKEND CONFIG =================
+// >>> TEMPEL URL WEB APP DARI GOOGLE APPS SCRIPT DI SINI <<<
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqVrXr5v9fcVhGxFMsJjTYBmI26E9MP8UphpP51vfJRfPDYrxCw3Pw1X-S4arTXSjf/exec"; 
+
+// ================= LOGIC =================
+let formData = { sumber: "", pasien: "", rm: "", petugas: "", obat: [] };
+
+function goToScreen(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + n).classList.add('active');
+}
+
+function selectCategory(categoryName) {
+    let container = document.getElementById('sub-options-container');
+    container.innerHTML = ""; 
+    
+    document.getElementById('sub-title').innerText = "PILIH LOKASI: " + categoryName.toUpperCase();
+
+    let options = locationData[categoryName];
+    if (options) {
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'btn btn-sub-option';
+            btn.innerText = opt.toUpperCase();
+            btn.onclick = function() { selectFinalSource(opt); };
+            container.appendChild(btn);
+        });
+    }
+
+    goToScreen('1-sub');
+}
+
+function selectFinalSource(sourceName) {
+    formData.sumber = sourceName;
+    goToScreen(2);
+}
+
+function validateAndNext() {
+    let p = document.getElementById('input-pasien').value;
+    let r = document.getElementById('input-rm').value;
+    let s = document.getElementById('input-petugas').value;
+
+    if (!p || !s) {
+        alert("Nama Pasien dan Nama Petugas Wajib Diisi!");
+        return;
+    }
+
+    formData.pasien = p;
+    formData.rm = r || "-"; 
+    formData.petugas = s;
+
+    document.getElementById('disp-sumber').innerText = formData.sumber;
+    document.getElementById('disp-pasien').innerText = formData.pasien;
+    document.getElementById('disp-rm').innerText = formData.rm;
+    document.getElementById('disp-petugas').innerText = formData.petugas;
+
+    if(formData.obat.length === 0) {
+        goToScreen(3); 
+    } else {
+        goToScreen(4);
+    }
+}
+
+function addMedicine() {
+    let nama = document.getElementById('input-obat').value;
+    let jum = document.getElementById('input-jumlah').value;
+
+    if (!nama || !jum) {
+        alert("Mohon lengkapi nama obat dan jumlah!");
+        return;
+    }
+
+    formData.obat.push({ nama: nama, jumlah: jum });
+
+    document.getElementById('input-obat').value = "";
+    document.getElementById('input-jumlah').value = "";
+
+    renderObatList();
+    goToScreen(4);
+}
+
+function cancelAddObat() {
+    if (formData.obat.length === 0) {
+        goToScreen(2);
+    } else {
+        goToScreen(4);
+    }
+}
+
+function renderObatList() {
+    let container = document.getElementById('list-obat-container');
+    container.innerHTML = "";
+
+    if (formData.obat.length === 0) {
+        container.innerHTML = "<p style='text-align:center; color:#ccc; font-style:italic;'>Belum ada obat diinput.</p>";
+        return;
+    }
+
+    formData.obat.forEach((item, index) => {
+        let html = `
+            <div class="card">
+                <div>
+                    <b>${item.nama}</b><br>
+                    <small>Jumlah: ${item.jumlah}</small>
+                </div>
+                <button onclick="deleteObat(${index})" style="background:none; border:none; color:#970747; font-weight:bold; cursor:pointer; font-size:18px;">✕</button>
+            </div>
+        `;
+        container.innerHTML += html;
+    });
+}
+
+function deleteObat(index) {
+    if(confirm("Hapus obat ini dari daftar?")) {
+        formData.obat.splice(index, 1);
+        renderObatList();
+    }
+}
+
+function submitData() {
+    if (formData.obat.length === 0) {
+        alert("Minimal harus ada 1 obat/BMHP yang diinput!");
+        return;
+    }
+
+    if (SCRIPT_URL === "TEMPEL_URL_WEB_APP_APPS_SCRIPT_DISINI" || SCRIPT_URL === "") {
+        alert("URL Apps Script belum dipasang! Mohon edit file HTML ini.");
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'flex';
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        document.getElementById('loading').style.display = 'none';
+        alert("SUKSES! Data Berhasil Disimpan.");
+        resetApp();
+    })
+    .catch(error => {
+        document.getElementById('loading').style.display = 'none';
+        alert("Gagal menyimpan data: " + error);
+    });
+}
+
+function resetApp() {
+    formData = { sumber: "", pasien: "", rm: "", petugas: "", obat: [] };
+    document.getElementById('input-pasien').value = "";
+    document.getElementById('input-rm').value = "";
+    document.getElementById('input-petugas').value = "";
+    document.getElementById('input-obat').value = ""; 
+    document.getElementById('input-jumlah').value = "";
+    document.getElementById('list-obat-container').innerHTML = "";
+    goToScreen(1);
+}
+</script>
+
+</body>
+</html>
